@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Et la question est pour ... Connexion{% endblock %}
+
+{% block header_title %}Et la question est pour ... Connexion !{% endblock %}
+
+{% block content %}
+<h1 class="h2">Groupe Webdev {{ "now"|date("Y") }}</h1>
+<p class="fs-5 col-md-8 mb-4">Une question, un.e stagiaire, une reponse !</p>
+<hr>
+
+<form action="/" method="post" name="login">
+    {{ csrf_field|raw }}
+    <div class="d-grid gap-2 col-6 mx-auto">
+        <div class="mb-3 mt-3 row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Login</label>
+            <div class="col-sm-10">
+                <input type="text" name="username" class="form-control" id="staticEmail" required>
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+            <div class="col-sm-10">
+                <input type="password" value="" name="userpwd" class="form-control" id="inputPassword" required>
+            </div>
+        </div>
+        <div class="mb-1 row">
+            <button type="submit" class="btn btn-primary mb-3">Connexion</button>
+        </div>
+    </div>
+    {% if error is defined %}
+    <p style="text-align: center" class="text-danger">{{ error }}</p>
+    {% endif %}
+</form>
+<hr>
+{% endblock %}

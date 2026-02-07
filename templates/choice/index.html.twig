@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choix du groupe{% endblock %}
+
+{% block navbar %}
+{% include 'partials/navbar.html.twig' with {
+    'show_time_filters': false,
+    'show_change_class': false
+} %}
+{% endblock %}
+
+{% set has_navbar = true %}
+
+{% block header_title %}Choix du groupe{% endblock %}
+
+{% block content %}
+<div class="col-lg-11 mx-auto p-3 py-md-5">
+    <h1 class="h2">Choix du groupe</h1>
+    <hr>
+    {% for key, id in session_annees %}
+    <p class="h3 fs-5 pb-4 col-md-8">
+        <a href="/choice/{{ id }}">{{ session_years[key] }} | {{ session_sections[key] }}</a>
+    </p>
+    {% endfor %}
+</div>
+{% endblock %}

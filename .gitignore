@@ -1,0 +1,20 @@
+# PHPStorm
+/.idea
+
+# configuration (ancienne)
+config.php
+
+# Variables d'environnement
+.env
+
+# Cache Twig
+/cache
+
+# fichiers inutiles
+/datas/coolcoldenV2.mwb.bak
+/datas/coolcoldenV2.mwb
+/datas/hasard*.sql
+
+# bibliothèques
+/vendor
+

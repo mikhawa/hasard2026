@@ -1,0 +1,2 @@
+<a href="https://github.com/mikhawa" target="_blank" title="Github de Michaël Pitz">Michaël Pitz</a> - <a href="https://www.cf2m.be" target="_blank" title="Centre de formation CF2m">CF2m</a>
+     &copy; <?= date("Y") ?>

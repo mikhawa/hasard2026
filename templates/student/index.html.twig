@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques stagiaires | {{ stats.section }} {{ stats.annee }} depuis {{ time_label }}{% endblock %}
+
+{% block navbar %}
+{% include 'partials/navbar.html.twig' with {
+    'show_time_filters': true,
+    'show_change_class': false,
+    'time_filters': time_filters,
+    'current_time': current_time,
+    'base_url': '/student'
+} %}
+{% endblock %}
+
+{% set has_navbar = true %}
+
+{% block header_title %}Statistiques stagiaires | {{ stats.section }} {{ stats.annee }} depuis {{ time_label }}{% endblock %}
+
+{% block content %}
+<h2 class="h5">Statistiques Personnelles</h2>
+<hr>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">N</th>
+        <th scope="col">Prenom N.</th>
+        <th scope="col">Points</th>
+        <th scope="col">Reponses +=2</th>
+        <th scope="col">Reponses ++</th>
+        <th scope="col">Mauvaises --</th>
+        <th scope="col">Absents --</th>
+        <th scope="col">Total</th>
+        <th scope="col">% sortie</th>
+    </tr>
+    </thead>
+    <tbody id="updateAllStagiaires">
+    {% for student in stagiaires %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ student.prenom }} {{ student.nom|slice(0, 1) }}.</td>
+        <td>{{ student.points }}</td>
+        <td>{{ student.vgood_pct }}%</td>
+        <td>{{ student.good_pct }}%</td>
+        <td>{{ student.nogood_pct }}%</td>
+        <td>{{ student.absent_pct }}%</td>
+        <td>{{ student.sorties }}</td>
+        <td>{{ student.sortie_pct }}%</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="h5">Statistiques Globales de {{ stats.section }} {{ stats.annee }} depuis {{ time_label }}</h2>
+<hr>
+
+<div class="text-left">
+    <div class="row">
+        <div class="col" id="statstotal">
+            <p>Nombre de questions : <strong>{{ stats.sorties }}</strong></p>
+            <p>Nombre de tres bonnes reponses : <strong>{{ stats.vgood }} ({{ stats.vgood_pct }}%)</strong></p>
+            <p>Nombre de bonnes reponses : <strong>{{ stats.good }} ({{ stats.good_pct }}%)</strong></p>
+            <p>Nombre de mauvaises reponses : <strong>{{ stats.nogood }} ({{ stats.nogood_pct }}%)</strong></p>
+            <p>Nombre d'absences : <strong>{{ stats.absent }} ({{ stats.absent_pct }}%)</strong></p>
+        </div>
+        <div class="col p-2">
+            <canvas id="pieChart" width="300" height="300"></canvas>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <canvas id="barChartPoints" height="100"></canvas>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <canvas id="barChartSorties" height="100"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script src="/js/charts.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pie chart data
+        const pieData = {
+            labels: ['Tres bien', 'Bien', 'Pas bien', 'Absent'],
+            data: [{{ stats.vgood }}, {{ stats.good }}, {{ stats.nogood }}, {{ stats.absent }}],
+            colors: ['#1E90FF', '#BA55D3', '#DC143C', '#ADFF2F']
+        };
+        createPieChart('pieChart', pieData);
+
+        // Bar chart - Points
+        const pointsData = {
+            labels: [{% for s in stagiaires_by_points %}'{{ s.prenom }} {{ s.nom|slice(0, 1) }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+            data: [{% for s in stagiaires_by_points %}{{ s.points }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            title: 'Top points de la classe'
+        };
+        createBarChart('barChartPoints', pointsData);
+
+        // Bar chart - Sorties
+        const sortiesData = {
+            labels: [{% for s in stagiaires_by_sorties %}'{{ s.prenom }} {{ s.nom|slice(0, 1) }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+            data: [{% for s in stagiaires_by_sorties %}{{ s.sorties }}{% if not loop.last %}, {% endif %}{% endfor %}],
+            title: 'Top sorties de la classe'
+        };
+        createBarChart('barChartSorties', sortiesData);
+    });
+</script>
+{% endblock %}

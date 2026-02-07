@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Logs de {{ stats.section }} {{ stats.annee }} page {{ page }}{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-light justify-content-md-end" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{{ base_url }}">Retour a Tous</a></li>
+            </ul>
+            <a href="/logout"><button type="button" class="btn btn-primary">Deconnexion</button></a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% set has_navbar = true %}
+
+{% block header_title %}Logs de {{ stats.section }} {{ stats.annee }} ({{ total_logs }}){% endblock %}
+
+{% block content %}
+<div class="col-lg-11 mx-auto p-3 py-md-5">
+    <h1 class="h2">Log de {{ stats.section }} {{ stats.annee }}</h1>
+    <p class="h3 fs-5 pb-4 col-md-8">Une question, un.e stagiaire, une reponse !</p>
+
+    <nav>{{ pagination|raw }}</nav>
+    <hr>
+
+    <p>
+    {% for log in logs %}
+        {{ log.reponseslogdate }} | ID : {{ log.idreponseslog }} | Points :
+        {% if log.reponseslogcol == 3 %}
+            +2
+        {% elseif log.reponseslogcol == 2 %}
+            +1
+        {% elseif log.reponseslogcol == 1 %}
+            -1 (mauvaise reponse)
+        {% else %}
+            -1 (absence)
+        {% endif %}
+        | Pour {{ log.nom }} {{ log.prenom }} | Par {{ log.username }} | commentaire : {{ log.remarque }}<br>
+    {% endfor %}
+    </p>
+
+    <hr>
+    <nav>{{ pagination|raw }}</nav>
+</div>
+{% endblock %}

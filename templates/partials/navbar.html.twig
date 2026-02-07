@@ -1,0 +1,33 @@
+<nav class="navbar navbar-expand-lg navbar-light justify-content-md-end" style="background-color: #e3f2fd;">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            {% if show_time_filters|default(false) %}
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% for filter in time_filters %}
+                <li class="nav-item">
+                    <a class="nav-link{% if current_time == filter.key %} active{% endif %}" href="{% if filter.key == 'tous' %}{{ base_url }}{% else %}{{ base_url }}?temps={{ filter.key }}{% endif %}">{{ filter.label }}</a>
+                </li>
+                {% endfor %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ base_url }}?logs">logs</a>
+                </li>
+            </ul>
+            {% else %}
+            <span class="navbar-nav me-auto mb-2 mb-lg-0"></span>
+            {% endif %}
+
+            {% if show_change_class|default(false) %}
+            <a href="/dashboard?newChoice" class="px-2">
+                <button type="button" class="btn btn-primary">Changer de classe</button>
+            </a>
+            {% endif %}
+
+            <a href="/logout">
+                <button type="button" class="btn btn-primary">Deconnexion</button>
+            </a>
+        </div>
+    </div>
+</nav>

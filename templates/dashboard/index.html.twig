@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Et la question est pour ... depuis {{ time_label }}{% endblock %}
+
+{% block navbar %}
+{% include 'partials/navbar.html.twig' with {
+    'show_time_filters': true,
+    'show_change_class': true,
+    'time_filters': time_filters,
+    'current_time': current_time,
+    'base_url': '/dashboard'
+} %}
+{% endblock %}
+
+{% set has_navbar = true %}
+
+{% block header_title %}Et la question est pour ...{% endblock %}
+
+{% block content %}
+<div class="col-lg-11 mx-auto p-3 py-md-5">
+    <h1 class="h2">{{ class_year }} {{ class_section }} depuis {{ time_label }}</h1>
+    <p class="h3 fs-5 pb-4 col-md-8">Une question, un.e stagiaire, une reponse !</p>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Nouvelle question au hasard !
+    </button>
+</div>
+<hr>
+
+<h2 class="h5">Statistiques Globales de {{ stats.section }} {{ stats.annee }}</h2>
+<hr>
+
+<div class="text-left">
+    <div class="row">
+        <div class="col" id="statstotal">
+            <p>Nombre de questions : <strong>{{ stats.sorties }}</strong></p>
+            <p>Nombre de tres bonnes reponses : <strong>{{ stats.vgood }} ({{ stats.vgood_pct }}%)</strong></p>
+            <p>Nombre de bonnes reponses : <strong>{{ stats.good }} ({{ stats.good_pct }}%)</strong></p>
+            <p>Nombre de mauvaises reponses : <strong>{{ stats.nogood }} ({{ stats.nogood_pct }}%)</strong></p>
+            <p>Nombre d'absences : <strong>{{ stats.absent }} ({{ stats.absent_pct }}%)</strong></p>
+        </div>
+        <div class="col p-2">
+            {% for student in stagiaires %}
+            <button type="button"
+                    onclick="choix({{ classe_id }}, {{ student.idstagiaires }}, '{{ student.prenom }} {{ student.nom|slice(0, 1) }}')"
+                    class="btn btn-outline-primary p-1 m-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#staticBackdrop">
+                <strong>{{ student.prenom }} {{ student.nom|slice(0, 1) }}</strong>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<hr>
+<h2 class="h5">Statistiques Personnelles</h2>
+<hr>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">N</th>
+        <th scope="col">Prenom N.</th>
+        <th scope="col">Points</th>
+        <th scope="col">Reponses +=2</th>
+        <th scope="col">Reponses ++</th>
+        <th scope="col">Mauvaises --</th>
+        <th scope="col">Absents --</th>
+        <th scope="col">Total</th>
+        <th scope="col">% sortie</th>
+    </tr>
+    </thead>
+    <tbody id="updateAllStagiaires">
+    {% for i, student in stagiaires %}
+    <tr>
+        <th scope="row">{{ loop.index }}</th>
+        <td>{{ student.prenom }} {{ student.nom|slice(0, 1) }}.</td>
+        <td>{{ student.points }}</td>
+        <td>{{ student.vgood_pct }}%</td>
+        <td>{{ student.good_pct }}%</td>
+        <td>{{ student.nogood_pct }}%</td>
+        <td>{{ student.absent_pct }}%</td>
+        <td>{{ student.sorties }}</td>
+        <td>{{ student.sortie_pct }}%</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div id="test"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div id="hasard">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Question pour {{ random_student.prenom }} {{ random_student.nom|slice(0, 1) }}.</h5>
+                    <button type="button" onclick="onLoadPage('hasard', 'hasard', '{{ current_time }}', {{ classe_id }});" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="idstagiaire" class="visually-hidden">{{ random_student.idstagiaires }}</div>
+                <div id="idannee" class="visually-hidden">{{ classe_id }}</div>
+                <div id="temps" class="visually-hidden">{{ current_time }}</div>
+            </div>
+            <div class="modal-body">
+                <p>Il suffit de repondre a la question</p>
+                <textarea name="remarque" id="remarque" rows="4" cols="40"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="b3" class="btn btn-success" data-bs-dismiss="modal">Super reponse</button>
+                <button type="button" id="b2" class="btn btn-primary" data-bs-dismiss="modal">Bonne reponse</button>
+                <button type="button" id="b1" class="btn btn-warning" data-bs-dismiss="modal">Et non...</button>
+                <button type="button" id="b0" class="btn btn-dark" data-bs-dismiss="modal">Absent.e</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.HASARD_CONFIG = {
+        classeId: {{ classe_id }},
+        temps: '{{ current_time }}',
+        csrfToken: '{{ csrf_token }}'
+    };
+</script>
+<script src="/js/app.js"></script>
+{% endblock %}

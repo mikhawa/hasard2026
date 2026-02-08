@@ -1,3 +1,11 @@
+/**
+ * StudentLogsPage.jsx — Page des logs d'activité (vue étudiant).
+ *
+ * Équivalent React de : StudentController::logs() + student/logs.html.twig
+ *
+ * Identique à DashboardLogsPage, mais pour les étudiants.
+ * L'API retourne les mêmes données, la permission est vérifiée côté serveur.
+ */
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi';
 import Navbar from '../components/Navbar';

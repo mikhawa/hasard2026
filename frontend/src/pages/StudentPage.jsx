@@ -1,3 +1,16 @@
+/**
+ * StudentPage.jsx — Page de la vue étudiant (lecture seule).
+ *
+ * Équivalent React de : StudentController::index() + student/index.html.twig
+ *
+ * Cette page est similaire au DashboardPage, mais en version lecture seule :
+ * - Pas de tirage au hasard
+ * - Pas de boutons de réponse
+ * - Deux classements : par points et par sorties
+ *
+ * Accessible uniquement aux utilisateurs avec perm=0 (étudiants),
+ * grâce au <ProtectedRoute requiredPerm={0}> dans App.jsx.
+ */
 import { useParams } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import Navbar from '../components/Navbar';
@@ -7,8 +20,11 @@ import PieChart from '../components/PieChart';
 import BarChart from '../components/BarChart';
 
 export default function StudentPage() {
+  // Récupère le filtre de temps depuis l'URL (ex: "1-mois")
   const { key } = useParams();
   const url = key ? `/student/temps/${key}` : '/student';
+
+  // Charge les données depuis GET /api/v1/student[/temps/{key}]
   const { data, loading, error } = useApi(url);
 
   if (loading) return <div className="text-center mt-5"><div className="spinner-border" /></div>;

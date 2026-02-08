@@ -23,6 +23,7 @@ class Router
 
             // Dashboard routes (admin/teacher)
             $r->addRoute('GET', '/dashboard', ['App\\Controller\\DashboardController', 'index']);
+            $r->addRoute('GET', '/dashboard/new-choice', ['App\\Controller\\DashboardController', 'newChoice']);
             $r->addRoute('GET', '/dashboard/logs', ['App\\Controller\\DashboardController', 'logs']);
 
             // Student routes

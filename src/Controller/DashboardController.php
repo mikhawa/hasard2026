@@ -81,6 +81,112 @@ class DashboardController extends AbstractController
         $this->redirect('/choice');
     }
 
+    // ── API endpoints ──────────────────────────────────────
+
+    public function apiIndex(string $key = null): void
+    {
+        if (!$this->requireApiAuth()) return;
+        if (!$this->requireApiClass()) return;
+
+        $classeId = (int) $_SESSION['classe'];
+        $timeFilter = $this->getTimeFilter($key);
+
+        $stagiairesManager = new StagiairesManager($this->db);
+        $statsManager = new AnneeManager($this->db);
+
+        $stagiaires = $stagiairesManager->SelectOnlyStagiairesByIdAnnee($classeId, $timeFilter['date']);
+        if (is_string($stagiaires)) {
+            $this->jsonError($stagiaires, 500);
+            return;
+        }
+
+        $stagiaires = Calcul::calculPoints($stagiaires);
+
+        $stats = $statsManager->SelectStatsByAnneeAndDate($classeId, $timeFilter['date']);
+        if (is_string($stats)) {
+            $this->jsonError($stats, 500);
+            return;
+        }
+
+        $randomStudent = $stagiairesManager->SelectOneRandomStagiairesByIdAnnee($classeId);
+        if (is_string($randomStudent)) {
+            $this->jsonError($randomStudent, 500);
+            return;
+        }
+
+        $stats['vgood_pct'] = $this->calculatePercent($stats['vgood'], $stats['sorties']);
+        $stats['good_pct'] = $this->calculatePercent($stats['good'], $stats['sorties']);
+        $stats['nogood_pct'] = $this->calculatePercent($stats['nogood'], $stats['sorties']);
+        $stats['absent_pct'] = $this->calculatePercent($stats['absent'], $stats['sorties']);
+
+        foreach ($stagiaires as &$student) {
+            $student['vgood_pct'] = $this->calculatePercent($student['vgood'], $student['sorties']);
+            $student['good_pct'] = $this->calculatePercent($student['good'], $student['sorties']);
+            $student['nogood_pct'] = $this->calculatePercent($student['nogood'], $student['sorties']);
+            $student['absent_pct'] = $this->calculatePercent($student['absent'], $student['sorties']);
+            $student['sortie_pct'] = $this->calculatePercent($student['sorties'], $stats['sorties']);
+        }
+
+        $idx = array_search($classeId, $_SESSION['idannee']);
+
+        $this->jsonSuccess([
+            'class' => [
+                'id' => $classeId,
+                'year' => $_SESSION['annee'][$idx] ?? '',
+                'section' => $_SESSION['section'][$idx] ?? '',
+            ],
+            'timeFilter' => [
+                'key' => $timeFilter['key'],
+                'label' => $timeFilter['label'],
+                'available' => $this->getTimeFilters(),
+            ],
+            'stats' => $stats,
+            'students' => $stagiaires,
+            'randomStudent' => $randomStudent,
+        ]);
+    }
+
+    public function apiLogs(): void
+    {
+        if (!$this->requireApiAuth()) return;
+        if (!$this->requireApiClass()) return;
+
+        $classeId = (int) $_SESSION['classe'];
+        $page = isset($_GET['page']) && ctype_digit($_GET['page']) ? (int) $_GET['page'] : 1;
+        $perPage = 100;
+
+        $statsManager = new AnneeManager($this->db);
+        $responseManager = new ReponselogManager($this->db);
+
+        $stats = $statsManager->SelectAllByAnnee($classeId);
+        if (is_string($stats)) {
+            $this->jsonError($stats, 500);
+            return;
+        }
+
+        $totalLogs = $responseManager->countAllLogsByAnnee($classeId);
+        $logs = $responseManager->selectAllLogsByAnneeWithPG($classeId, $page);
+        if (is_string($logs)) {
+            $this->jsonError($logs, 500);
+            return;
+        }
+
+        $totalPages = (int) ceil($totalLogs / $perPage);
+
+        $this->jsonSuccess([
+            'stats' => $stats,
+            'logs' => $logs,
+            'pagination' => [
+                'totalLogs' => $totalLogs,
+                'currentPage' => $page,
+                'perPage' => $perPage,
+                'totalPages' => $totalPages,
+            ],
+        ]);
+    }
+
+    // ── Twig endpoints ──────────────────────────────────────
+
     public function logs(): void
     {
         $this->requireAuth();

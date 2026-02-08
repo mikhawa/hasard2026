@@ -2,10 +2,6 @@
     RewriteEngine On
     RewriteBase /
 
-    # Redirect to HTTPS (uncomment in production)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
     # Handle front controller pattern
     # If the requested file or directory doesn't exist, route to index.php
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -13,18 +9,9 @@
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
-# Security headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-</IfModule>
-
-# Disable directory listing
-Options -Indexes
-
 # Deny access to sensitive files
-<FilesMatch "\.(env|ini|log|sql)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(env|ini|log|sql)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Model\AnneeManager;
+use App\Model\Calcul;
 use App\Model\ReponselogManager;
 use App\Model\StagiairesManager;
 
@@ -29,14 +30,14 @@ class DashboardController extends AbstractController
         $stagiairesManager = new StagiairesManager($this->db);
         $statsManager = new AnneeManager($this->db);
 
-        // Get all students with stats
+        // Get all students with stats and calculate points
         $stagiaires = $stagiairesManager->SelectOnlyStagiairesByIdAnnee($classeId, $timeFilter['date']);
         if (is_string($stagiaires)) {
             die($stagiaires);
         }
 
-        // Sort by points (descending)
-        usort($stagiaires, fn($a, $b) => $b['points'] - $a['points']);
+        // Calculate points and sort (adds 'points' key to each student)
+        $stagiaires = Calcul::calculPoints($stagiaires);
 
         // Get global stats
         $stats = $statsManager->SelectStatsByAnneeAndDate($classeId, $timeFilter['date']);

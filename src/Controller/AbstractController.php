@@ -75,9 +75,8 @@ abstract class AbstractController
         return isset($_SESSION['myidsession']) && $_SESSION['myidsession'] === session_id();
     }
 
-    protected function getTimeFilter(): array
+    protected function getTimeFilter(?string $temps = null): array
     {
-        $temps = $_GET['temps'] ?? null;
         return $this->timeSlot->getFilter($temps);
     }
 

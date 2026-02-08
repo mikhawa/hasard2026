@@ -11,13 +11,13 @@ use App\Model\StagiairesManager;
 
 class DashboardController extends AbstractController
 {
-    public function index(): void
+    public function index(string $key = null): void
     {
         $this->requireAuth();
         $this->requireClass();
 
         $classeId = (int) $_SESSION['classe'];
-        $timeFilter = $this->getTimeFilter();
+        $timeFilter = $this->getTimeFilter($key);
 
         $stagiairesManager = new StagiairesManager($this->db);
         $statsManager = new AnneeManager($this->db);

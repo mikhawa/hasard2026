@@ -8,7 +8,7 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 {% for filter in time_filters %}
                 <li class="nav-item">
-                    <a class="nav-link{% if current_time == filter.key %} active{% endif %}" href="{% if filter.key == 'tous' %}{{ base_url }}{% else %}{{ base_url }}?temps={{ filter.key }}{% endif %}">{{ filter.label }}</a>
+                    <a class="nav-link{% if current_time == filter.key %} active{% endif %}" href="{% if filter.key == 'tous' %}{{ base_url }}{% else %}{{ base_url }}/temps/{{ filter.key }}{% endif %}">{{ filter.label }}</a>
                 </li>
                 {% endfor %}
                 <li class="nav-item">

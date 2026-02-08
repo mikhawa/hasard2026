@@ -23,11 +23,13 @@ class Router
 
             // Dashboard routes (admin/teacher)
             $r->addRoute('GET', '/dashboard', ['App\\Controller\\DashboardController', 'index']);
+            $r->addRoute('GET', '/dashboard/temps/{key}', ['App\\Controller\\DashboardController', 'index']);
             $r->addRoute('GET', '/dashboard/new-choice', ['App\\Controller\\DashboardController', 'newChoice']);
             $r->addRoute('GET', '/dashboard/logs', ['App\\Controller\\DashboardController', 'logs']);
 
             // Student routes
             $r->addRoute('GET', '/student', ['App\\Controller\\StudentController', 'index']);
+            $r->addRoute('GET', '/student/temps/{key}', ['App\\Controller\\StudentController', 'index']);
             $r->addRoute('GET', '/student/logs', ['App\\Controller\\StudentController', 'logs']);
 
             // API routes (AJAX)

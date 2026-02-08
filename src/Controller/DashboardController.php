@@ -14,14 +14,6 @@ class DashboardController extends AbstractController
     public function index(): void
     {
         $this->requireAuth();
-
-        // Check for newChoice parameter to reset class selection
-        if (isset($_GET['newChoice'])) {
-            unset($_SESSION['classe']);
-            $this->redirect('/choice');
-            return;
-        }
-
         $this->requireClass();
 
         $classeId = (int) $_SESSION['classe'];
@@ -80,6 +72,13 @@ class DashboardController extends AbstractController
             'class_year' => $_SESSION['annee'][$idannee],
             'class_section' => $_SESSION['section'][$idannee],
         ]);
+    }
+
+    public function newChoice(): void
+    {
+        $this->requireAuth();
+        unset($_SESSION['classe']);
+        $this->redirect('/choice');
     }
 
     public function logs(): void

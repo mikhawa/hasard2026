@@ -50,6 +50,31 @@ abstract class AbstractController
         echo json_encode($data);
     }
 
+    protected function jsonSuccess(array $data, int $statusCode = 200): void
+    {
+        $this->setCorsHeaders();
+        $this->json(['success' => true, 'data' => $data], $statusCode);
+    }
+
+    protected function jsonError(string $message, int $statusCode = 400): void
+    {
+        $this->setCorsHeaders();
+        $this->json(['success' => false, 'error' => $message], $statusCode);
+    }
+
+    protected function setCorsHeaders(): void
+    {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $allowed = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+
+        if (in_array($origin, $allowed, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        }
+    }
+
     protected function redirect(string $url): void
     {
         header('Location: ' . $url);
@@ -63,11 +88,35 @@ abstract class AbstractController
         }
     }
 
+    protected function requireApiAuth(): bool
+    {
+        if (!isset($_SESSION['myidsession']) || $_SESSION['myidsession'] !== session_id()) {
+            $this->jsonError('Non authentifié', 401);
+            return false;
+        }
+        return true;
+    }
+
     protected function requireClass(): void
     {
         if (!isset($_SESSION['classe'])) {
             $this->redirect('/choice');
         }
+    }
+
+    protected function requireApiClass(): bool
+    {
+        if (!isset($_SESSION['classe'])) {
+            $this->jsonError('Aucune classe sélectionnée', 403);
+            return false;
+        }
+        return true;
+    }
+
+    protected function getJsonBody(): array
+    {
+        $body = file_get_contents('php://input');
+        return json_decode($body, true) ?? [];
     }
 
     protected function isLoggedIn(): bool

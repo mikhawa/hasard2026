@@ -38,4 +38,27 @@ class ChoiceController extends AbstractController
             $this->redirect('/choice');
         }
     }
+
+    // ── API endpoints ──────────────────────────────────────
+
+    public function apiSelect(string $id): void
+    {
+        if (!$this->requireApiAuth()) return;
+
+        $id = (int) $id;
+
+        if (!in_array($id, $_SESSION['idannee'])) {
+            $this->jsonError('Classe invalide', 400);
+            return;
+        }
+
+        $_SESSION['classe'] = $id;
+        $idx = array_search($id, $_SESSION['idannee']);
+
+        $this->jsonSuccess([
+            'classeId' => $id,
+            'annee' => $_SESSION['annee'][$idx] ?? '',
+            'section' => $_SESSION['section'][$idx] ?? '',
+        ]);
+    }
 }

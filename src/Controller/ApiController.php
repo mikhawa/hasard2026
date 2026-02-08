@@ -127,6 +127,86 @@ class ApiController extends AbstractController
         }
     }
 
+    // ── API v1 endpoints ────────────────────────────────────
+
+    public function apiRecordResponse(): void
+    {
+        if (!$this->requireApiAuth()) return;
+
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!Csrf::validate($csrfToken)) {
+            $this->jsonError('Token CSRF invalide', 403);
+            return;
+        }
+
+        $data = $this->getJsonBody();
+
+        if (!isset($data['idstag'])) {
+            $this->jsonError('Champs requis manquants', 400);
+            return;
+        }
+
+        $idstag = (int) $data['idstag'];
+        $idan = (int) ($data['idan'] ?? $_SESSION['classe']);
+        $points = (int) ($data['points'] ?? 0);
+        $remarque = !empty($data['remarque']) ? htmlspecialchars($data['remarque'], ENT_QUOTES) : null;
+
+        $stagiairesManager = new StagiairesManager($this->db);
+        $result = $stagiairesManager->updatePointsStagiaireById($idstag, $points, $idan, $remarque);
+
+        $this->jsonSuccess([
+            'message' => $result,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public function apiRandomStudent(): void
+    {
+        if (!$this->requireApiAuth()) return;
+
+        $classeId = (int) ($_GET['idan'] ?? $_SESSION['classe']);
+
+        $stagiairesManager = new StagiairesManager($this->db);
+        $randomStudent = $stagiairesManager->SelectOneRandomStagiairesByIdAnnee($classeId);
+
+        if (is_string($randomStudent)) {
+            $this->jsonError($randomStudent, 500);
+            return;
+        }
+
+        $this->jsonSuccess([
+            'idstagiaires' => $randomStudent['idstagiaires'],
+            'prenom' => $randomStudent['prenom'],
+            'nom' => $randomStudent['nom'],
+        ]);
+    }
+
+    public function apiStats(): void
+    {
+        if (!$this->requireApiAuth()) return;
+
+        $classeId = (int) ($_GET['idan'] ?? $_SESSION['classe']);
+        $temps = $_GET['temps'] ?? 'tous';
+        $timeFilter = $this->timeSlot->getFilter($temps);
+
+        $statsManager = new AnneeManager($this->db);
+        $stats = $statsManager->SelectStatsByAnneeAndDate($classeId, $timeFilter['date']);
+
+        if (is_string($stats)) {
+            $this->jsonError($stats, 500);
+            return;
+        }
+
+        $stats['vgood_pct'] = $this->calculatePercent($stats['vgood'], $stats['sorties']);
+        $stats['good_pct'] = $this->calculatePercent($stats['good'], $stats['sorties']);
+        $stats['nogood_pct'] = $this->calculatePercent($stats['nogood'], $stats['sorties']);
+        $stats['absent_pct'] = $this->calculatePercent($stats['absent'], $stats['sorties']);
+
+        $this->jsonSuccess($stats);
+    }
+
+    // ── Legacy helpers ───────────────────────────────────────
+
     private function formatPercent(int $value, int $total): string
     {
         if ($total === 0) {

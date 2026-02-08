@@ -17,4 +17,8 @@ config.php
 
 # bibliothèques
 /vendor
+/frontend/node_modules
+
+# Build React SPA
+/public/app
 

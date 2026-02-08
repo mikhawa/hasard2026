@@ -3,3 +3,5 @@
 php cleanup.php
 
 php cleanup.php --confirm
+
+rm cleanup.php
